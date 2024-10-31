@@ -1,5 +1,6 @@
 ###############################################################################
 # This is for plotting and visual inspection of the earthquake catlog of NAFZ
+# test
 
 ###############################################################################
 import pygmt
