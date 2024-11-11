@@ -1,6 +1,5 @@
 ###############################################################################
 # This is for plotting and visual inspection of the earthquake catlog of NAFZ
-# test
 
 ###############################################################################
 import pygmt
@@ -22,10 +21,16 @@ pygmt.config(
     FORMAT_GEO_MAP="ddd.x" 
 )
 
-MINLAT = 40.25
-MAXLAT = 41.0
-MINLON = 29.95
-MAXLON = 30.7
+# MINLAT = 40.25
+# MAXLAT = 41.0
+# MINLON = 29.95
+# MAXLON = 30.7
+
+MINLAT = 40.00
+MAXLAT = 41.20
+MINLON = 29.60
+MAXLON = 31.00
+
 
 # MINLAT = 40.00
 # MAXLAT = 41.20
@@ -66,7 +71,7 @@ fig.grdimage(
     shading=True,
     region=region_Ana,
     projection="M15c",
-    cmap="geo",
+    # cmap="snow",
 )
 
 fig.plot(
@@ -77,14 +82,14 @@ fig.plot(
 
 pygmt.makecpt(
     cmap="batlow",
-    series=[0, 40],
+    series=[0, 20],
     # reverse=True,
 )
 
 fig.plot(
     x=Ana_event_new.longitude,
     y=Ana_event_new.latitude,
-    size=0.05 * (2**Ana_event_new.mag),
+    size=0.075 * (2**Ana_event_new.mag),
     fill=Ana_event_new.depth,
     cmap=True,
     style="cc",
@@ -101,10 +106,16 @@ fig.plot(
 fig.plot(
     data="fig/NAFZ_stats.txt",
     incols=[1, 2],
-    style="i0.45c",
-    fill="SNOW",
+    style="i0.55c",
+    fill="black",
     pen="1.5p,black",
 )
+# fig.plot(
+#     x = [30.6133, 40.6775],
+#     y = [30.0923, 40.2844],
+#     pen="2.5p,black",
+# )
+
 
 # fig.plot(
 #     data="fig/KO_CAP.csv",

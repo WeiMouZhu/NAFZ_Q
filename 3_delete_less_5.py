@@ -1,11 +1,10 @@
-
 ###############################################################################
 # Description:
 # This script is for:
 # 1. Deleting event directories with fewer than 5 SAC files
 # 2. Extracting station lists from SAC files
 # 3. Updating event catalogs
-# For CAP (Cut and Paste) data from 2013 to 2015
+# For CAP (Cut and Paste) data from2013 to 2015
 ###############################################################################
 import glob
 import os
@@ -33,18 +32,21 @@ def load_event_catalog(file_path):
 def process_event_directory(event_dir, event_info, station_flag):
     # Process an event directory:
     # - Check if directory exists
-    # - Count SAC files
+    # - Count SAC files (excluding KO network)
     # - Delete directory if fewer than 5 SAC files
     # - Extract station info if needed
     try:
-        os.chdir(f"local_vel_data_BHZ/{event_dir}/")
+        os.chdir(f"local_vel_data/{event_dir}/")
     except FileNotFoundError:
         print(f"The records of {event_info[0]}-{event_dir} have been deleted, skipping")
         return False, 0
 
-    sac_files = glob.glob("*.SAC")
-    if len(sac_files) < 5:
-        print(f"The records of {event_info[0]}-{event_dir} is less than 5, deleting")
+    # Get all SAC files and filter out KO network
+    all_sac_files = glob.glob("*.SAC")
+    sac_files = [f for f in all_sac_files if not f.split('.')[6] == 'KO']
+
+    if len(sac_files) < 9:
+        print(f"The records of {event_info[0]}-{event_dir} is less than 9 (excluding KO network), deleting")
         os.chdir("../")
         os.system(f"rm -r {event_dir}")
         os.chdir("../")
@@ -52,6 +54,13 @@ def process_event_directory(event_dir, event_info, station_flag):
 
     if station_flag:
         extract_station_info(sac_files)
+
+    # Update sacfiles.txt with non-KO files
+    if not os.path.exists("sacfiles.txt"):
+        with open("sacfiles.txt", "w") as f:
+            for sac_file in sac_files:
+                if sac_file.endswith(".BH?.SAC"):
+                    f.write(f"{sac_file}\n")
 
     return True, len(sac_files)
 
@@ -61,6 +70,10 @@ def extract_station_info(sac_files):
     for file_name in sac_files:
         try:
             header = read(file_name)[0].stats
+            # Skip KO network stations
+            if header.network == "KO":
+                continue
+                
             net_sta_name = f"{header.network}.{header.station}"
 
             if net_sta_name not in station_names:
@@ -76,7 +89,6 @@ def extract_station_info(sac_files):
         except AttributeError:
             print(f"[ERROR3] Header info wrong: {file_name}")
 
-
 def write_updated_event_par_files(event_lines, all_sac, left_event, deleted_events):
     # Write updated event parameter files
     with open("log/Poyraz_2015_catlog_updated.par", "w") as new_elf, open(
@@ -85,7 +97,6 @@ def write_updated_event_par_files(event_lines, all_sac, left_event, deleted_even
         for line in event_lines:
             # Write original format to the first file
             new_elf.write(line + "\n")
-            
             # Parse event details and write to the second file with specific formatting
             event = line.split()
             origin_time = UTCDateTime(
@@ -136,10 +147,6 @@ def main():
             continue
 
         updated_event_lines.append(line)
-
-        if not os.path.exists("sacfiles.txt"):
-            os.system("ls *.BH?.SAC > sacfiles.txt")
-
         os.chdir("../../")
         all_sac += n_sac
         left_event += 1

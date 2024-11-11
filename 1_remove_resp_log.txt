@@ -1,0 +1,13 @@
+--------------------------------------------------------------------------
+9 stations have no response file, listed as follows:
+20130623.10.55: KO.ADVT.BHE
+20130623.10.55: KO.ADVT.BHN
+20130623.10.55: KO.ADVT.BHZ
+20130623.10.55: KO.GULT.BHE
+20130623.10.55: KO.GULT.BHN
+20130623.10.55: KO.GULT.BHZ
+20130623.10.55: KO.HRTX.BHE
+20130623.10.55: KO.HRTX.BHN
+20130623.10.55: KO.HRTX.BHZ
+0 stations have wrong response file, listed as follows:
+

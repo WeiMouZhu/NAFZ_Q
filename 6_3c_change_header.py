@@ -18,10 +18,9 @@ import pandas as pd
 from obspy import read
 import os
 import shutil
-import numpy as np
 
 # Read the filtered_picks.csv file
-df = pd.read_csv('NAFZ_filter_SAC/final_filtered_picks.csv')
+df = pd.read_csv('NAFZ_5Filter_3SAC/final_filtered_picks.csv')
 
 # Convert begin_time and phase_time to datetime objects
 df['begin_time'] = pd.to_datetime(df['begin_time'])
@@ -33,7 +32,7 @@ df_p = df[df['phase_type'] == 'P'].set_index('file_name')
 df_s = df[df['phase_type'] == 'S'].set_index('file_name')
 
 # Create a new directory
-new_sac_folder = './NAFZ_outlier_SAC'
+new_sac_folder = './NAFZ_6Outlier_3SAC'
 if not os.path.exists(new_sac_folder):
     os.makedirs(new_sac_folder)
     
@@ -43,7 +42,7 @@ if not os.path.exists(results_folder):
     os.makedirs(results_folder) 
     
 # Iterate through the SAC folder
-sac_folder = './NAFZ_filter_SAC'
+sac_folder = './NAFZ_5Filter_3SAC'
 for root, dirs, files in os.walk(sac_folder):
     for file in files:
         if file.endswith('.SAC'):
@@ -64,10 +63,7 @@ for root, dirs, files in os.walk(sac_folder):
             # Update t2 (S wave)
             if file in df_s.index:
                 tr.stats.sac.t2 = 2*float(df_s.loc[file, 'time_diff'])
-            
-            # Calculate and update user2 with the actual distance
-            # This considers both the epicentral distance (dist) and the event depth (evdp)
-            tr.stats.sac.user2 = np.sqrt(tr.stats.sac.dist**2 + tr.stats.sac.evdp**2)
+
             
             # Save the updated SAC file
             tr.write(new_file_path, format='SAC')

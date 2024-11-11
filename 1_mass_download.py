@@ -20,10 +20,10 @@ from obspy.clients.fdsn.mass_downloader import (
 # MINLON = 29.50
 # MAXLON = 31.00
 
-MINLAT = 40.25
-MAXLAT = 41.0
-MINLON = 29.95
-MAXLON = 30.55
+MINLAT = 40.00
+MAXLAT = 41.20
+MINLON = 29.60
+MAXLON = 31.00
 
 pre_event_min = 0.5
 aft_event_min = 2.5
@@ -43,7 +43,7 @@ elf = open("catlog/Poyraz_2015_catlog.par", "r")
 el = elf.read().splitlines()
 elf.close()
 
-i = 0
+i = 571
 while i < len(el):
     event = el[i].split()
 
@@ -109,7 +109,7 @@ while i < len(el):
 
     mdl = MassDownloader(
         providers=[
-            # "KOERI",
+            "KOERI",
             "IRIS",
         ]
     )

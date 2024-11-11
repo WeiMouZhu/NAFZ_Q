@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 import re  
 import time  
 from shapely.geometry import Point, Polygon
+import matplotlib.pyplot as plt
 
 ###############################################################################
 # Read the data using appropriate separator (assuming space or tab)
@@ -37,8 +38,12 @@ start_time = pd.to_datetime("2012-05-01")
 end_time = pd.to_datetime("2013-09-20")
 
 # Define the polygon for geographical filtering
+# polygon = Polygon([
+#     (29.95, 40.25), (30.7, 40.25), (30.7, 41.0), (29.95, 41.0)
+# ])
+
 polygon = Polygon([
-    (29.95, 40.25), (30.7, 40.25), (30.7, 41.0), (29.95, 41.0)
+    (29.6, 40.0), (29.6, 41.2), (31.0, 41.2), (31.0, 40.0)
 ])
 
 # Function to check if a point is inside the polygon
@@ -49,7 +54,8 @@ def is_inside_polygon(lat, lon):
 # Filter data based on geographical (polygon), magnitude, and time criteria
 DANA_seismicity_updated = DANA_seismicity_updated[
     (DANA_seismicity_updated.apply(lambda row: is_inside_polygon(row['Latitude'], row['Longitude']), axis=1))
-    & (DANA_seismicity_updated["Magnitude"] >= 0.8)
+    & (DANA_seismicity_updated["Magnitude"] >= 1.0)
+    & (DANA_seismicity_updated["Magnitude"] <= 3.5)
     & (DANA_seismicity_updated["Depth"] <= 15.0)
     & (DANA_seismicity_updated["Time"] >= start_time)
     & (DANA_seismicity_updated["Time"] <= end_time)
@@ -198,6 +204,31 @@ def parse_custom_format(input_file, output_file):
                 )  
             )
 
+def create_magnitude_histogram(data, output_file):  
+    plt.figure(figsize=(10, 6))  
+    
+    # 使用更好看的颜色和透明度  
+    plt.hist(data['Magnitude'], bins=20, edgecolor='black', color='skyblue', alpha=0.7)  
+    
+    # # 添加平均值线  
+    # mean_magnitude = data['Magnitude'].mean()  
+    # plt.axvline(mean_magnitude, color='red', linestyle='dashed', linewidth=2, label=f'Mean: {mean_magnitude:.2f}')  
+    
+    plt.title('Magnitude Distribution of Seismic Events', fontsize=16)  
+    plt.xlabel('Magnitude', fontsize=12)  
+    plt.ylabel('Count', fontsize=12)  
+    plt.grid(True, linestyle='--', alpha=0.5)  
+    
+    # 添加图例  
+    plt.legend()  
+    
+    # 调整布局  
+    plt.tight_layout()  
+    
+    plt.savefig(output_file, dpi=300, bbox_inches='tight')  
+    plt.close()  
+
+
 # Output paths  
 output_csv = "catlog/Poyraz_2015_catlog.csv"  
 output_txt = "catlog/Poyraz_2015_catlog.txt"  
@@ -208,3 +239,11 @@ DANA_seismicity_updated.to_csv(output_csv, index=False, sep=",")
 convert_csv_to_custom_format(output_csv, output_txt)  
 parse_custom_format(output_txt, output_par)
 print("Data processing completed.")
+
+
+# 创建震级分布直方图  
+histogram_output = "catlog/Magnitude_Distribution_Histogram.jpg"  
+create_magnitude_histogram(DANA_seismicity_updated, histogram_output)  
+
+print("Data processing completed.")  
+print(f"Magnitude distribution histogram saved as {histogram_output}") 
